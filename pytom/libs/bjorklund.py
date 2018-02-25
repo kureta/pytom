@@ -9,6 +9,7 @@ def bjorklund(steps, pulses):
 
     Divide steps into pulses.
     If the remainder is 0, pulses divide the steps equally and result of the division is the duration of each pulse.
+
     >>> bjorklund(8, 4)
     [2, 2, 2, 2]
 
@@ -16,6 +17,7 @@ def bjorklund(steps, pulses):
     Convert that into a binary representation. ex: [3, 2] => [1, 0, 0, 1, 0]
     Add the evenly distributed remainder to the equal division of steps.
     ex: bjorklund(12, 5) => [2, 2, 2, 2, 2] + [1, 0, 0, 1, 0] = [3, 2, 2, 3, 2]
+
     >>> bjorklund(12, 5)
     [3, 2, 2, 3, 2]
     """
@@ -34,6 +36,7 @@ def to_binary(xs):
     """ Convert a list of durations into a list of pulses.
     :param xs: list of durations
     :return: list of pulses
+
     >>> to_binary([3, 3, 2])
     [1, 0, 0, 1, 0, 0, 1, 0]
     """
@@ -47,6 +50,7 @@ def to_durations(x, y):
     """ Convert a list of binary pulses into a list of durations.
         :param xs: list of pulses
         :return: list of durations
+
         >>> to_durations([1, 0, 0, 1, 0, 0, 1, 0])
         [3, 3, 2]
         """
