@@ -160,7 +160,10 @@ texinfo_documents = [
 # -- Custom config to work around readthedocs.org #1139 -------------------
 
 def run_apidoc(_):
-    apidoc.main([None, '--force', '-o', 'docs/', 'pytom'])
+    repo_root = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+    pkg_root = os.path.join(repo_root, 'pytom')
+    output_path = os.path.join(repo_root, 'docs', 'api')
+    apidoc.main([None, '--force', '-o', output_path, pkg_root])
 
 
 def setup(app):
