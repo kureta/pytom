@@ -20,6 +20,7 @@
 #
 import os
 import sys
+
 sys.path.insert(0, os.path.abspath('..'))
 
 import pytom
@@ -78,7 +79,6 @@ pygments_style = 'sphinx'
 # If true, `todo` and `todoList` produce output, else they produce nothing.
 todo_include_todos = False
 
-
 # -- Options for HTML output -------------------------------------------
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
@@ -97,12 +97,10 @@ html_theme = 'alabaster'
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
 
-
 # -- Options for HTMLHelp output ---------------------------------------
 
 # Output file base name for HTML help builder.
 htmlhelp_basename = 'pytomdoc'
-
 
 # -- Options for LaTeX output ------------------------------------------
 
@@ -133,7 +131,6 @@ latex_documents = [
      u'Sahin Kureta', 'manual'),
 ]
 
-
 # -- Options for manual page output ------------------------------------
 
 # One entry per manual page. List of tuples
@@ -143,7 +140,6 @@ man_pages = [
      u'PyTOM Documentation',
      [author], 1)
 ]
-
 
 # -- Options for Texinfo output ----------------------------------------
 
@@ -159,5 +155,6 @@ texinfo_documents = [
      'Miscellaneous'),
 ]
 
+from sphinx.apidoc import main as run_apidoc
 
-
+run_apidoc(['-o', 'docs/', 'pytom'])
