@@ -163,7 +163,7 @@ def run_apidoc(_):
     repo_root = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
     pkg_root = os.path.join(repo_root, 'pytom')
     output_path = os.path.join(repo_root, 'docs', 'api')
-    apidoc.main([None, '--force', '-o', output_path, pkg_root])
+    apidoc.main([None, '--force', '-o', output_path, 'pytom'])
 
 
 def setup(app):
