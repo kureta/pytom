@@ -20,7 +20,6 @@
 #
 import os
 import sys
-from sphinx import apidoc
 
 sys.path.insert(0, os.path.abspath('..'))
 
@@ -157,13 +156,12 @@ texinfo_documents = [
 ]
 
 
-# -- Custom config to work around readthedocs.org #1139 -------------------
-
 def run_apidoc(_):
-    repo_root = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
-    pkg_root = os.path.join(repo_root, 'pytom')
-    output_path = os.path.join(repo_root, 'docs', 'api')
-    apidoc.main([None, '--force', '-o', output_path, 'pytom'])
+    from sphinx.apidoc import main
+    cur_dir = os.path.abspath(os.path.dirname(__file__))
+    module = 'pytom'
+    output_path = os.path.join(cur_dir, 'docs')
+    main(['-e', '-o', output_path, module, '--force'])
 
 
 def setup(app):
