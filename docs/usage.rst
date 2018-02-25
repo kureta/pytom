@@ -10,6 +10,6 @@ To use PyTOM in a project::
 
 Or from the command line::
 
-    $ pytom --bjorklund 8 3
+    $ pytom euclidean --steps-beats 8 3
     [3, 2, 3]
 

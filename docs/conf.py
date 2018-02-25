@@ -154,7 +154,3 @@ texinfo_documents = [
      'One line description of project.',
      'Miscellaneous'),
 ]
-
-from sphinx.apidoc import main as run_apidoc
-
-run_apidoc(['-o', 'docs/', 'pytom'])
