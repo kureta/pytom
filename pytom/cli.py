@@ -4,13 +4,16 @@
 import sys
 import click
 
+from pytom.libs.bjorklund import bjorklund
+
 
 @click.command()
-def main(args=None):
+@click.option('--bjork', nargs=2, type=int, metavar='<int> <int>',
+              prompt='Number of steps and number of pulses',
+              help='Euclidean rhthym given a number of steps and a number of pulses to evenly distribute.')
+def main(bjork):
     """Console script for pytom."""
-    click.echo("Replace this message by putting your code into "
-               "pytom.cli.main")
-    click.echo("See click documentation at http://click.pocoo.org/")
+    click.echo(repr(bjorklund(*bjork)))
     return 0
 
 
