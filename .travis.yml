@@ -13,3 +13,7 @@ deploy:
     tags: true
     repo: kureta/pytom
     python: 3.6
+notifications:
+  email:
+    on_success: never
+    on_failure: always
