@@ -20,6 +20,7 @@
 #
 import os
 import sys
+from sphinx import apidoc
 
 sys.path.insert(0, os.path.abspath('..'))
 
@@ -154,3 +155,13 @@ texinfo_documents = [
      'One line description of project.',
      'Miscellaneous'),
 ]
+
+
+# -- Custom config to work around readthedocs.org #1139 -------------------
+
+def run_apidoc(_):
+    apidoc.main([None, '--force', '-o', 'docs/', 'pytom'])
+
+
+def setup(app):
+    app.connect('builder-inited', run_apidoc)
