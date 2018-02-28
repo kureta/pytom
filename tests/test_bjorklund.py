@@ -1,8 +1,6 @@
-from collections import deque
-
 import hypothesis.strategies as st
 import pytest
-from hypothesis import given, assume
+from hypothesis import given
 
 from pytom.libs.bjorklund import Bjorklund, bjorklund, bjorklund_non_recursive
 

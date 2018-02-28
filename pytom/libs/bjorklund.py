@@ -12,7 +12,7 @@ class Bjorklund:
 
     @classmethod
     def from_pulses(cls, pulses):
-        instance = cls('')
+        instance = cls([])
         instance.pulses = pulses
         return instance
 
