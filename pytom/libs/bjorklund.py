@@ -1,6 +1,10 @@
 from pytom.libs.utils import reduce_with
 
 
+def add_lists(xs, ys):
+    return [x + y for x, y in zip(xs, ys)]
+
+
 def bjorklund(steps, pulses):
     """ Calculates optimal distribution of a number of pulses over a number of discrete steps.
     :param steps: number of steps (ex: divisions of a measure)
@@ -29,7 +33,7 @@ def bjorklund(steps, pulses):
         return [quotient] * pulses
 
     distributed_remainder = to_binary(bjorklund(pulses, remainder))
-    return [x + y for x, y in zip([quotient] * pulses, distributed_remainder)]
+    return add_lists([quotient] * pulses, distributed_remainder)
 
 
 def to_binary(xs):

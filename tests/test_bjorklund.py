@@ -1,8 +1,8 @@
-import pytest
-import hypothesis.strategies as st
-from hypothesis import given, assume
-
 from collections import deque
+
+import hypothesis.strategies as st
+import pytest
+from hypothesis import given, assume
 
 from pytom.libs.bjorklund import bjorklund, to_binary, to_durations
 
@@ -63,10 +63,13 @@ def test_bjorklund(x, y):
     # Check for equality up to rotation
     reference_deque = deque(reference)
     recursive_deque = deque(recursive)
-    reference_rotations = (reference_deque.rotate(i) for i in range(len(reference)))
-    recursive_rotations = (recursive_deque.rotate(i) for i in range(len(recursive)))
 
-    assert any((a == b for a, b in zip(reference_rotations, recursive_rotations)))
+    for i in range(len(reference_deque)):
+        reference_deque.rotate()
+        if reference_deque == recursive_deque:
+            break
+
+    assert reference_deque == recursive_deque
 
 
 @given(st.lists(st.integers(min_value=-16, max_value=16), max_size=32))

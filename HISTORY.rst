@@ -2,6 +2,12 @@
 History
 =======
 
+0.1.4 (2018-28-02)
+------------------
+
+* Fix: Hypothesis test was always successful.
+
+
 0.1.3 (2018-25-02)
 ------------------
 
