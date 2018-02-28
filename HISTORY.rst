@@ -2,6 +2,12 @@
 History
 =======
 
+0.1.5 (2018-28-02)
+------------------
+
+* Added non-recursive version of the Bjorklund algorithm.
+
+
 0.1.4 (2018-28-02)
 ------------------
 
