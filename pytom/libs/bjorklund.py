@@ -1,8 +1,36 @@
-from pytom.libs.utils import reduce_with
+from pytom.libs.utils import reduce_with, foldr
 
 
-def add_lists(xs, ys):
-    return [x + y for x, y in zip(xs, ys)]
+def add_beats(xs, ys):
+    return [x + y for x, y in zip(xs, durations_to_pulses(ys))]
+
+
+def bjorklund_non_recursive(steps, pulses):
+    """ Calculates optimal distribution of a number of pulses over a number of discrete steps.
+    :param steps: number of steps (ex: divisions of a measure)
+    :param pulses: number of pulses (ex: hits of a drum)
+    :return: duration of each pulse (ex: bjorklund(8,2) => [3, 3, 2]
+
+    Non-recursive version of the Bjorklund algorithm.
+
+    >>> bjorklund(8, 4)
+    [2, 2, 2, 2]
+
+    >>> bjorklund(12, 5)
+    [3, 2, 2, 3, 2]
+    """
+    if pulses <= 0 or steps <= 0 or pulses > steps:
+        raise ValueError
+
+    beats = []
+    remainder = 1
+    while remainder > 0:
+        quotient, remainder = divmod(steps, pulses)
+        beats.append([quotient] * pulses)
+        steps, pulses = pulses, remainder
+
+    result = foldr(add_beats, beats)
+    return result
 
 
 def bjorklund(steps, pulses):
@@ -32,16 +60,15 @@ def bjorklund(steps, pulses):
     if remainder == 0:
         return [quotient] * pulses
 
-    distributed_remainder = to_binary(bjorklund(pulses, remainder))
-    return add_lists([quotient] * pulses, distributed_remainder)
+    return add_beats([quotient] * pulses, bjorklund(pulses, remainder))
 
 
-def to_binary(xs):
+def durations_to_pulses(xs):
     """ Convert a list of durations into a list of pulses.
     :param xs: list of durations
     :return: list of pulses
 
-    >>> to_binary([3, 3, 2])
+    >>> durations_to_pulses([3, 3, 2])
     [1, 0, 0, 1, 0, 0, 1, 0]
     """
     if any([x <= 0 for x in xs]):
@@ -50,12 +77,12 @@ def to_binary(xs):
 
 
 @reduce_with(init=[])
-def to_durations(x, y):
+def pulses_to_durations(x, y):
     """ Convert a list of binary pulses into a list of durations.
         :param xs: list of pulses
         :return: list of durations
 
-        >>> to_durations([1, 0, 0, 1, 0, 0, 1, 0])
+        >>> pulses_to_durations([1, 0, 0, 1, 0, 0, 1, 0])
         [3, 3, 2]
         """
     if not x:
