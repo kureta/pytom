@@ -10,6 +10,12 @@ class Bjorklund:
         instance = bjorklund(n_steps, n_pulses)
         return instance
 
+    @classmethod
+    def from_pulses(cls, pulses):
+        instance = cls('')
+        instance.pulses = pulses
+        return instance
+
     def __init__(self, durations):
         self.durations = deque(durations)
 
@@ -104,7 +110,7 @@ def bjorklund(n_steps, n_pulses):
     If the remainder is 0, pulses divide the steps equally and result of the division is the duration of each pulse.
 
     >>> bjorklund(8, 4)
-    [2, 2, 2, 2]
+    <2 2 2 2>
 
     Otherwise recursively get the optimal distribution of the remainder over the pulses.
     Convert that into a binary representation. ex: [3, 2] => [1, 0, 0, 1, 0]
@@ -112,7 +118,7 @@ def bjorklund(n_steps, n_pulses):
     ex: bjorklund(12, 5) => [2, 2, 2, 2, 2] + [1, 0, 0, 1, 0] = [3, 2, 2, 3, 2]
 
     >>> bjorklund(12, 5)
-    [3, 2, 2, 3, 2]
+    <3 2 2 3 2>
     """
     if n_pulses <= 0 or n_steps <= 0 or n_pulses > n_steps:
         raise ValueError("Negative or zero number of steps or pulses do not make sense in this context!")
@@ -133,10 +139,10 @@ def bjorklund_non_recursive(n_steps, n_pulses):
     Non-recursive version of the Bjorklund algorithm.
 
     >>> bjorklund(8, 4)
-    [2, 2, 2, 2]
+    <2 2 2 2>
 
     >>> bjorklund(12, 5)
-    [3, 2, 2, 3, 2]
+    <3 2 2 3 2>
     """
     if n_pulses <= 0 or n_steps <= 0 or n_pulses > n_steps:
         raise ValueError
