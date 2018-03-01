@@ -25,7 +25,6 @@ class Bjorklund:
 
         self.durations = durations
 
-
     @property
     def durations(self):
         return self.__durations

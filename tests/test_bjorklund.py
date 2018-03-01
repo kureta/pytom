@@ -18,20 +18,20 @@ def reference_bjorklund(steps, pulses):
         counts.append(divisor // remainders[level])
         remainders.append(divisor % remainders[level])
         divisor = remainders[level]
-        level = level + 1
+        level += 1
 
     counts.append(divisor)
 
-    def build(level):
-        if level == -1:
+    def build(level_):
+        if level_ == -1:
             pattern.append(0)
-        elif level == -2:
+        elif level_ == -2:
             pattern.append(1)
         else:
-            for i in range(0, counts[level]):
-                build(level - 1)
-            if remainders[level] != 0:
-                build(level - 2)
+            for __ in range(0, counts[level_]):
+                build(level_ - 1)
+            if remainders[level_] != 0:
+                build(level_ - 2)
 
     build(level)
     i = pattern.index(1)
