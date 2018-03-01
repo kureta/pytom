@@ -132,8 +132,8 @@ def bjorklund(n_steps, n_beats):
     """
     if n_beats <= 0 or n_steps <= 0 or n_beats > n_steps:
         raise ValueError("Negative or zero number of steps or beats do not make sense in this context!")
-    quotient, remainder = divmod(n_steps, n_beats)
 
+    quotient, remainder = divmod(n_steps, n_beats)
     if remainder == 0:
         return Bjorklund([quotient] * n_beats)
 
