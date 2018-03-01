@@ -1,7 +1,7 @@
 from collections import deque
 from operator import add
 
-from pytom.libs.utils import reduce_with, foldr
+from pytom.libs.utils import reduce_with, foldr, lcm
 
 
 class Bjorklund:
@@ -82,7 +82,10 @@ class Bjorklund:
         return len(self.pulses)
 
     def __add__(self, other):
-        return Bjorklund([x + y for x, y in zip(self.durations, other.pulses)])
+        multiple = lcm(len(self.durations), len(other.pulses))
+        a = multiple // len(self.durations)
+        b = multiple // len(other.pulses)
+        return Bjorklund([x + y for x, y in zip(self.durations * a, other.pulses * b)])
 
     def __eq__(self, other):
         result = False

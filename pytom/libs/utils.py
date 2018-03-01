@@ -1,4 +1,5 @@
 from functools import reduce, wraps
+from math import gcd
 
 
 def reduce_with(init):
@@ -28,3 +29,7 @@ def foldr(func, xs, init=None):
         return reduce(flip(func), reversed(xs), init)
     else:
         return reduce(flip(func), reversed(xs))
+
+
+def lcm(a, b):
+    return (a * b) // gcd(a, b)
