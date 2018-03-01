@@ -2,7 +2,7 @@ import hypothesis.strategies as st
 import pytest
 from hypothesis import given
 
-from pytom.libs.bjorklund import Bjorklund, bjorklund, bjorklund_non_recursive
+from pytom.libs.bjorklund import Bjorklund
 
 
 def reference_bjorklund(steps, pulses):
@@ -43,41 +43,19 @@ def reference_bjorklund(steps, pulses):
 def test_bjorklund(x, y):
     if y > x:
         with pytest.raises(ValueError):
-            bjorklund(x, y)
+            Bjorklund.from_n_steps_n_beats(x, y)
         with pytest.raises(ValueError):
             reference_bjorklund(x, y)
         return
 
     if y <= 0:
         with pytest.raises(ValueError):
-            bjorklund(x, y)
+            Bjorklund.from_n_steps_n_beats(x, y)
         with pytest.raises(ValueError):
             reference_bjorklund(x, y)
         return
 
-    reference = Bjorklund.from_pulses(reference_bjorklund(x, y))
-    recursive = bjorklund(x, y)
-
-    assert reference == recursive
-
-
-@given(st.integers(min_value=-256, max_value=256), st.integers(min_value=-256, max_value=256))
-def test_bjorklund_non_recursive(x, y):
-    if y > x:
-        with pytest.raises(ValueError):
-            bjorklund_non_recursive(x, y)
-        with pytest.raises(ValueError):
-            reference_bjorklund(x, y)
-        return
-
-    if y <= 0:
-        with pytest.raises(ValueError):
-            bjorklund_non_recursive(x, y)
-        with pytest.raises(ValueError):
-            reference_bjorklund(x, y)
-        return
-
-    reference = Bjorklund.from_pulses(reference_bjorklund(x, y))
-    recursive = bjorklund_non_recursive(x, y)
+    reference = Bjorklund.from_steps(reference_bjorklund(x, y))
+    recursive = Bjorklund.from_n_steps_n_beats(x, y)
 
     assert reference == recursive
