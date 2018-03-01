@@ -12,38 +12,43 @@ class Bjorklund:
     @classmethod
     def from_steps(cls, steps):
         instance = cls([])
-        instance._steps = steps
+        instance.steps = steps
         return instance
 
     def __init__(self, durations):
-        # deque of durations of each beat
-        self._durations = deque(durations)
-        # GETTER ONLY
-        self._n_beats = len(self._durations)
-        # GETTER ONLY
-        self._n_steps = len(self._steps)
-        # TODO: the following
-        # GETTER AND SETTER
-        # __offset
-        # GETTER AND SETTER
-        # __indices
-        # GETTER AND SETTER
-        # __steps
+        self.__durations = None
+        self.__steps = None
+        self.__indices = None
+        self.__offset = None
+        self.__n_steps = None
+        self.__n_beats = None
 
-    def is_bjorklund(self):
-        bjork = Bjorklund.from_n_steps_n_beats(len(self._steps), len(self._durations))
-        return self == bjork
+        self.durations = durations
+
 
     @property
-    def _steps(self):
-        if any([x <= 0 for x in self._durations]):
+    def durations(self):
+        return self.__durations
+
+    @durations.setter
+    def durations(self, durations):
+        if any([x <= 0 for x in durations]):
             raise ValueError("Negative or zero length durations do not make sense in this context!")
-        return sum([[1] + [0] * (x - 1) for x in self._durations], [])
+
+        self.__durations = durations
+        self.__steps = sum([[1] + [0] * (x - 1) for x in durations], [])
+        self.__indices = [index for index, value in enumerate(self.steps) if value == 1]
+        self.__n_beats = len(self.durations)
+        self.__n_steps = len(self.steps)
+
+    @property
+    def steps(self):
+        return self.__steps
 
     # TODO: Pulses may start with a rest. What are we going to do with durations then?
     # Maybe replace duration with beat indices for generation. Use delta function to get cyclic durations.
-    @_steps.setter
-    def _steps(self, value):
+    @steps.setter
+    def steps(self, steps):
         @reduce_with(init=[])
         def to_durations(x, y):
             if not x:
@@ -55,59 +60,75 @@ class Bjorklund:
             if y == 1:
                 return x + [y]
 
-        self._durations = deque(to_durations(value))
+        self.__steps = steps
+        self.__durations = deque(to_durations(steps))
+        self.__indices = [index for index, value in enumerate(steps) if value == 1]
+        self.__n_beats = len(self.durations)
+        self.__n_steps = len(self.steps)
+
+    # TODO: indices setter
+    @property
+    def indices(self):
+        return self.__indices
 
     @property
-    def __indices(self):
-        return [index for index, value in enumerate(self._steps) if value == 1]
+    def n_steps(self):
+        return self.__n_steps
+
+    @property
+    def n_beats(self):
+        return self.__n_beats
 
     def delta(self, j, i):
-        return (self.__indices[(i + j) % self._n_beats] - self.__indices[i]) % self._n_steps
+        return (self.indices[(i + j) % self.n_beats] - self.indices[i]) % self.n_steps
 
     def delta_bar(self, i):
         result = 0
-        for j in range(1, self._n_beats):
+        for j in range(1, self.n_beats):
             result += self.delta(j, i)
-        return result / (self._n_beats - 1)
+        return result / (self.n_beats - 1)
 
     def uglyness(self, i):
         result = 0
-        for j in range(1, self._n_beats):
+        for j in range(1, self.n_beats):
             result += (self.delta(j, i) - self.delta_bar(i)) ** 2
-        return result / (self._n_beats - 1)
+        return result / (self.n_beats - 1)
 
     def total_uglyness(self):
         result = 0
-        for j in range(1, self._n_beats // 2 + 1):
-            for i in range(0, self._n_beats):
-                result += (self.delta(j, i) - (j * self._n_steps) / self._n_beats) ** 2
-        return 2 * result / self._n_beats
+        for j in range(1, self.n_beats // 2 + 1):
+            for i in range(0, self.n_beats):
+                result += (self.delta(j, i) - (j * self.n_steps) / self.n_beats) ** 2
+        return 2 * result / self.n_beats
+
+    def is_bjorklund(self):
+        bjork = Bjorklund.from_n_steps_n_beats(self.n_steps, self.n_beats)
+        return self == bjork
 
     def __len__(self):
-        return len(self._steps)
+        return self.n_steps
 
-    # noinspection PyProtectedMember
     def __add__(self, other):
-        multiple = lcm(len(self._durations), len(other._steps))
-        a = multiple // len(self._durations)
-        b = multiple // len(other._steps)
-        return Bjorklund([x + y for x, y in zip(self._durations * a, other._steps * b)])
+        multiple = lcm(self.n_beats, other.n_steps)
+        a = multiple // self.n_beats
+        b = multiple // other.n_steps
+        return Bjorklund([x + y for x, y in zip(self.durations * a, other.steps * b)])
 
-    # noinspection PyProtectedMember
     def __eq__(self, other):
-        result = False
-        for i in range(len(self._durations)):
-            self._durations.rotate()
-            if other._durations == self._durations:
-                result = True
-                break
-        return result
+        d_rotations = deque(self.durations)
+        other_durations = deque(other.durations)
+
+        for i in range(self.n_beats):
+            if other_durations == d_rotations:
+                return True
+            d_rotations.rotate()
+        return False
 
     def __repr__(self):
-        return f"<{' '.join([str(i) for i in self._durations])}>"
+        return f"<{' '.join([str(i) for i in self.durations])}>"
 
     def __str__(self):
-        return f"<{' '.join([str(i) for i in self._durations])}>"
+        return f"<{' '.join([str(i) for i in self.durations])}>"
 
 
 def bjorklund(n_steps, n_beats):
