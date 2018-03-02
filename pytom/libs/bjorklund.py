@@ -126,11 +126,11 @@ class Bjorklund:
         try:
             return self.steps.index(1)
         except ValueError:
-            return None
+            return 0
 
     @offset.setter
     def offset(self, offset):
-        if self.offset is None:
+        if not self.steps:
             return
         max_offset = self.steps[::-1].index(1)
         if offset > max_offset:
@@ -366,7 +366,7 @@ class Bjorklund:
         my_durations = deque(self.durations)
         other_durations = deque(other.durations)
 
-        for i in range(self.n_beats):
+        for i in range(self.n_beats+1):
             if other_durations == my_durations:
                 return True
             my_durations.rotate()
