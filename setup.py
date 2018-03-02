@@ -17,6 +17,8 @@ setup_requirements = ['pytest-runner', ]
 
 test_requirements = ['pytest', 'hypothesis', ]
 
+doc_requirements = ['Sphinx==1.7.1', ]
+
 setup(
     author="Sahin Kureta",
     author_email='skureta@gmail.com',
@@ -34,6 +36,9 @@ setup(
         ],
     },
     install_requires=requirements,
+    extras_require={
+        'docs': doc_requirements
+    },
     license="GNU General Public License v3",
     long_description=readme + '\n\n' + history,
     include_package_data=True,
