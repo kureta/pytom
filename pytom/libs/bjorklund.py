@@ -242,8 +242,7 @@ class Bjorklund:
             return
         max_offset = self.steps[::-1].index(1)
         if offset > max_offset:
-            print(f"Not enough empty steps at the end!"
-                  "setting offset to the maximum allowed valueof {max_offset}")
+            print(f"Not enough empty steps at the end!\nSetting offset to the maximum allowed valueof {max_offset}.")
             offset = max_offset
         current_offset = self.offset
         steps = deque(self.steps)
