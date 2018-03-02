@@ -157,7 +157,7 @@ texinfo_documents = [
 
 
 def run_apidoc(_):
-    from sphinx.apidoc import main
+    from sphinx.ext.apidoc import main
     cur_dir = os.path.abspath(os.path.dirname(__file__))
     output_path = os.path.join(cur_dir)
     module_path = os.path.join(cur_dir, '..', 'pytom')
