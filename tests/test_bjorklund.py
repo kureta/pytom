@@ -1,6 +1,6 @@
+import unittest
+from hypothesis import given, assume
 import hypothesis.strategies as st
-import pytest
-from hypothesis import given
 
 from pytom.libs.bjorklund import Bjorklund
 
@@ -40,23 +40,20 @@ def reference_bjorklund(steps, beats):
 
 
 # TODO: Improve test coverage
-@given(st.integers(min_value=-256, max_value=256), st.integers(min_value=-256, max_value=256))
-def test_bjorklund(x, y):
-    if y > x:
-        with pytest.raises(ValueError):
-            Bjorklund.from_n_steps_n_beats(x, y)
-        with pytest.raises(ValueError):
-            reference_bjorklund(x, y)
-        return
+class BjorklundTest(unittest.TestCase):
 
-    if y <= 0:
-        with pytest.raises(ValueError):
-            Bjorklund.from_n_steps_n_beats(x, y)
-        with pytest.raises(ValueError):
-            reference_bjorklund(x, y)
-        return
+    @given(st.integers(min_value=1, max_value=128), st.integers(min_value=1, max_value=128))
+    def test_from_n_steps_n_beats(self, x, y):
+        assume(x > y)
 
-    reference = Bjorklund.from_steps(reference_bjorklund(x, y))
-    recursive = Bjorklund.from_n_steps_n_beats(x, y)
+        implementation = Bjorklund.from_n_steps_n_beats(x, y)
+        reference = Bjorklund.from_steps(reference_bjorklund(x, y))
 
-    assert reference == recursive
+        self.assertEqual(implementation, reference)
+
+    @given(st.integers(min_value=-128, max_value=128), st.integers(min_value=-128, max_value=128))
+    def test_from_n_steps_n_beats_exceptions(self, x, y):
+        if x < y or x <= 0 or y <= 0:
+            self.assertRaises(ValueError, Bjorklund.from_n_steps_n_beats, x, y)
+        else:
+            self.assertIsInstance(Bjorklund.from_n_steps_n_beats(x, y), Bjorklund)
