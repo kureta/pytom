@@ -4,7 +4,7 @@
 
 __author__ = """Sahin Kureta"""
 __email__ = 'skureta@gmail.com'
-__version__ = '0.1.5'
+__version__ = '0.1.6'
 
 from .libs.bjorklund import Bjorklund
 
