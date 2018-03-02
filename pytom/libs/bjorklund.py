@@ -208,10 +208,9 @@ class Bjorklund:
 
     def rotate_steps(self, n: int):
         """
-        Rotate rhythm stepwise.
+        Rotate rhythm stepwise. Same as :code:`deque.rotate`
 
         :param n: Number of rotations. Rotate right if n is negative.
-        It is the same as the `rotate` method of `collections.deque`
 
         >>> x = Bjorklund([3, 2, 3], 1)
         >>> print(x)
@@ -235,10 +234,10 @@ class Bjorklund:
 
     def rotate_durations(self, n: int):
         """
-        Rotate rhythm by durations. This does not effect the `offset` of the rhythm.
+        Rotate rhythm by durations. This does not effect the :code:`offset` of the rhythm.
+        Same as :code:`deque.rotate`
 
         :param n: Number of rotations. Rotate right if n is negative.
-        It is the same as the `rotate` method of `collections.deque`
 
         >>> x = Bjorklund([3, 2, 3], 1)
         >>> print(x)
@@ -389,7 +388,7 @@ class Bjorklund:
 
 def steps_to_durations(steps: List[int]) -> List[int]:
     """
-    Convert `steps` representation of a Bjorklund into `durations` representation
+    Convert :code:`steps` representation of a Bjorklund into :code:`durations` representation
 
     :param steps: list of steps. 1 where there is a beat 0 where there is silence
     :return: list of durations.
@@ -414,7 +413,7 @@ def steps_to_durations(steps: List[int]) -> List[int]:
 
 def durations_to_steps(durations: List[int]) -> List[int]:
     """
-    Convert `durations` representation of a Bjorklund into `steps` representation
+    Convert :code:`durations` representation of a Bjorklund into :code:`steps` representation
 
     :param durations: list of durations
     :return: list of steps. 1 where there is a beat 0 where there is silence
@@ -430,7 +429,7 @@ def durations_to_steps(durations: List[int]) -> List[int]:
 
 def steps_to_indices(steps: List[int]) -> List[int]:
     """
-    Convert `steps` representation of a Bjorklund into `indices` representation
+    Convert :code:`steps` representation of a Bjorklund into :code:`indices` representation
 
     :param steps: list of steps. 1 where there is a beat 0 where there is silence
     :return: list of indices of beats (indices of 1s in steps).
@@ -443,7 +442,7 @@ def steps_to_indices(steps: List[int]) -> List[int]:
 
 def indices_and_n_steps_to_steps(indices: List[int], n_steps: int) -> List[int]:
     """
-    Convert `indices` representation of a Bjorklund into `steps` representation
+    Convert :code:`indices` representation of a Bjorklund into :code:`steps` representation
 
     :param indices: list of indices of beats (indices of 1s in steps).
     :param n_steps: number of steps
@@ -460,6 +459,7 @@ def indices_and_n_steps_to_steps(indices: List[int], n_steps: int) -> List[int]:
 
 def bjorklund(n_steps: int, n_beats: int) -> Bjorklund:
     """ Calculates optimal distribution of a number of beats over a number of discrete steps.
+
     :param n_steps: number of steps (ex: divisions of a measure)
     :param n_beats: number of beats (ex: hits of a drum)
     :return: duration of each beat (ex: bjorklund(8,2) => [3, 3, 2]
