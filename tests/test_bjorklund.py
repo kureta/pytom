@@ -5,14 +5,14 @@ from hypothesis import given
 from pytom.libs.bjorklund import Bjorklund
 
 
-def reference_bjorklund(steps, pulses):
-    if pulses <= 0 or steps <= 0 or pulses > steps:
+def reference_bjorklund(steps, beats):
+    if beats <= 0 or steps <= 0 or beats > steps:
         raise ValueError
     pattern = []
     counts = []
     remainders = []
-    divisor = steps - pulses
-    remainders.append(pulses)
+    divisor = steps - beats
+    remainders.append(beats)
     level = 0
     while remainders[level] > 1:
         counts.append(divisor // remainders[level])
@@ -39,6 +39,7 @@ def reference_bjorklund(steps, pulses):
     return pattern
 
 
+# TODO: Improve test coverage
 @given(st.integers(min_value=-256, max_value=256), st.integers(min_value=-256, max_value=256))
 def test_bjorklund(x, y):
     if y > x:

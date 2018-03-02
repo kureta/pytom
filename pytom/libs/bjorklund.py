@@ -3,6 +3,7 @@ from collections import deque
 from pytom.libs.utils import reduce_with, lcm
 
 
+# TODO: Write docstrings
 class Bjorklund:
     @classmethod
     def from_n_steps_n_beats(cls, n_steps, n_beats):
@@ -15,15 +16,31 @@ class Bjorklund:
         instance.steps = steps
         return instance
 
-    def __init__(self, durations):
-        self.__durations = None
-        self.__steps = None
-        self.__indices = None
-        self.__offset = None
-        self.__n_steps = None
-        self.__n_beats = None
+    @classmethod
+    def from_indices_and_n_steps(cls, indices, n_steps):
+        instance = cls([])
+        instance.steps = indices_and_n_steps_to_steps(indices, n_steps)
+        return instance
+
+    def rotate_steps(self, n):
+        steps = deque(self.steps)
+        steps.rotate(n)
+        self.steps = list(steps)
+
+    def rotate_durations(self, n):
+        durations = deque(self.durations)
+        durations.rotate(n)
+        offset = self.offset
+        self.durations = list(durations)
+        self.offset = offset
+
+    def __init__(self, durations, offset=0):
+        self.__durations = []
+        self.__steps = []
+        self.__indices = []
 
         self.durations = durations
+        self.offset = offset
 
     @property
     def durations(self):
@@ -31,52 +48,58 @@ class Bjorklund:
 
     @durations.setter
     def durations(self, durations):
-        if any([x <= 0 for x in durations]):
-            raise ValueError("Negative or zero length durations do not make sense in this context!")
-
         self.__durations = durations
-        self.__steps = sum([[1] + [0] * (x - 1) for x in durations], [])
-        self.__indices = [index for index, value in enumerate(self.steps) if value == 1]
-        self.__n_beats = len(self.durations)
-        self.__n_steps = len(self.steps)
+        self.__steps = durations_to_steps(durations)
+        self.__indices = steps_to_indices(self.steps)
+
+    @property
+    def offset(self):
+        try:
+            return self.steps.index(1)
+        except ValueError:
+            return None
+
+    @offset.setter
+    def offset(self, offset):
+        if self.offset is None:
+            return
+        max_offset = self.steps[::-1].index(1)
+        if offset > max_offset:
+            print(f"Not enough empty steps at the end!"
+                  "setting offset to the maximum allowed valueof {max_offset}")
+            offset = max_offset
+        current_offset = self.offset
+        steps = deque(self.steps)
+        steps.rotate(offset - current_offset)
+        self.steps = list(steps)
 
     @property
     def steps(self):
         return self.__steps
 
-    # TODO: Pulses may start with a rest. What are we going to do with durations then?
-    # Maybe replace duration with beat indices for generation. Use delta function to get cyclic durations.
     @steps.setter
     def steps(self, steps):
-        @reduce_with(init=[])
-        def to_durations(x, y):
-            if not x:
-                if y != 1:
-                    raise NotImplemented("Patterns cannot start with rests just yet. Sorry.")
-                return [y]
-            if y == 0:
-                return x[:-1] + [x[-1] + 1]
-            if y == 1:
-                return x + [y]
-
         self.__steps = steps
-        self.__durations = deque(to_durations(steps))
-        self.__indices = [index for index, value in enumerate(steps) if value == 1]
-        self.__n_beats = len(self.durations)
-        self.__n_steps = len(self.steps)
+        self.__durations = steps_to_durations(steps)
+        self.__indices = steps_to_indices(steps)
 
-    # TODO: indices setter
     @property
     def indices(self):
         return self.__indices
 
+    @indices.setter
+    def indices(self, indices):
+        self.__indices = indices
+        self.__steps = indices_and_n_steps_to_steps(indices, self.n_steps)
+        self.durations = steps_to_durations(self.steps)
+
     @property
     def n_steps(self):
-        return self.__n_steps
+        return len(self.steps)
 
     @property
     def n_beats(self):
-        return self.__n_beats
+        return len(self.durations)
 
     def delta(self, j, i):
         return (self.indices[(i + j) % self.n_beats] - self.indices[i]) % self.n_steps
@@ -114,13 +137,13 @@ class Bjorklund:
         return Bjorklund([x + y for x, y in zip(self.durations * a, other.steps * b)])
 
     def __eq__(self, other):
-        d_rotations = deque(self.durations)
+        my_durations = deque(self.durations)
         other_durations = deque(other.durations)
 
         for i in range(self.n_beats):
-            if other_durations == d_rotations:
+            if other_durations == my_durations:
                 return True
-            d_rotations.rotate()
+            my_durations.rotate()
         return False
 
     def __repr__(self):
@@ -128,6 +151,40 @@ class Bjorklund:
 
     def __str__(self):
         return f"<{' '.join([str(i) for i in self.durations])}>"
+
+
+def steps_to_durations(steps):
+    @reduce_with(init=[])
+    def s_to_d(x, y):
+        if y == 0:
+            return x[:-1] + [x[-1] + 1]
+        if y == 1:
+            return x + [y]
+        raise ValueError("Steps can contain only beats (1) or rests (0)!")
+
+    if not steps:
+        return []
+
+    index = steps.index(1)
+    return s_to_d(steps[index:] + steps[:index])
+
+
+def durations_to_steps(durations):
+    if any([x <= 0 for x in durations]):
+        raise ValueError("Negative or zero length durations do not make sense in this context!")
+
+    return sum([[1] + [0] * (x - 1) for x in durations], [])
+
+
+def steps_to_indices(steps):
+    return [index for index, value in enumerate(steps) if value == 1]
+
+
+def indices_and_n_steps_to_steps(indices, n_steps):
+    steps = [0] * n_steps
+    for index in indices:
+        steps[index] = 1
+    return steps
 
 
 def bjorklund(n_steps, n_beats):
