@@ -1,32 +1,42 @@
+from typing import List
 from collections import deque
 
 from pytom.libs.utils import reduce_with, lcm
 
 
 # TODO: Write docstrings
+# TODO: use numpydoc or change docstring style
 class Bjorklund:
+    """
+    Bjorklund(durations, offset=0)
+
+    Stores different representation of a rhythmic pattern and keeps all of them up to
+    date with respect to each other. Can calculate 'uglyness' of a pattern or a specific
+    beat of a pattern as defined in Bjorklund (2003). Can be initiated with an Euclidean
+    rhythm.
+
+    It has different initialization methods:
+
+    >>> Bjorklund(durations=[3, 2, 3], offset=0)
+    <3 2 3>
+    >>> Bjorklund.from_n_steps_n_beats(n_steps=8, n_beats=3)
+    <3 2 3>
+    >>> Bjorklund.from_steps(steps=[1, 0, 0, 1, 0, 1, 0, 0])
+    <3 2 3>
+    >>> Bjorklund.from_indices_and_n_steps(indices=[0, 3, 5], n_steps=8)
+    <3 2 3>
+    """
     @classmethod
     def from_n_steps_n_beats(cls, n_steps, n_beats):
         """
-        Generate an Euclidean with given number of steps and number of beats.
+        Generate an Euclidean for given number of steps and number of beats.
 
-        Parameters
-        ----------
-        n_steps : int
-            Number of steps
-        n_beats : int
-            Number of beats
+        :param n_steps: Number of steps
+        :param n_beats: Number of beats
+        :return: Generated Bjorklund rhythm object.
 
-        Returns
-        -------
-        rhythm : Bjorklund
-            Generated Bjorklund rhythm object.
-
-        Examples
-        --------
         >>> Bjorklund.from_n_steps_n_beats(8, 3)
         <3 2 3>
-
         """
         instance = bjorklund(n_steps, n_beats)
         return instance
@@ -36,22 +46,11 @@ class Bjorklund:
         """
         Create a Bjorklund rhythm object by explicitly providing each step
 
-        Parameters
-        ----------
-        steps : list
-            List of steps. `1` for a beat, `0` for a rest.
-            ex: [1, 0, 0, 0, 1, 0, 1, 0, 1]
+        :param steps: Number of steps
+        :return: Generated Bjorklund rhythm object.
 
-        Returns
-        -------
-        rhythm : Bjorklund
-            Generated Bjorklund rhythm object.
-
-        Examples
-        --------
         >>> Bjorklund.from_steps([1, 0, 0, 0, 1, 0, 1, 0, 1])
         <4 2 2 1>
-
         """
         instance = cls([])
         instance.steps = steps
@@ -60,26 +59,14 @@ class Bjorklund:
     @classmethod
     def from_indices_and_n_steps(cls, indices, n_steps):
         """
-        Create a Bjorklund rhythm object by explicitly providing each step
+        Create a Bjorklund rhythm object from indices and number of steps.
 
-        Parameters
-        ----------
-        indices : list
-            List of indices of beats.
-            ex: [1, 3, 6, 7]
-        n_steps : int
-            Number of total steps.
+        :param indices: List of indices of beats.
+        :param n_steps: Number of steps.
+        :return: Generated Bjorklund rhythm object.
 
-        Returns
-        -------
-        rhythm : Bjorklund
-            Generated Bjorklund rhythm object.
-
-        Examples
-        --------
         >>> Bjorklund.from_indices_and_n_steps([1, 3, 6, 7], 8)
         <2 3 1 2> (offset: 1)
-
         """
         instance = cls([])
         instance.steps = indices_and_n_steps_to_steps(indices, n_steps)
@@ -89,21 +76,10 @@ class Bjorklund:
         """
         Default initialization method for the Bjorklund object.
 
-        Parameters
-        ----------
-        durations : list
-            List of durations of beats.
-            ex: [2, 2, 2, 3]
-        offset : int
-            Offset of the first beat (number of silent beats before the start).
+        :param durations: List of durations of beats.
+        :param offset: Offset of the first beat (number of silent beats before the start).
+        :return: Generated Bjorklund rhythm object.
 
-        Returns
-        -------
-        rhythm : Bjorklund
-            Generated Bjorklund rhythm object.
-
-        Examples
-        --------
         >>> Bjorklund([2, 2, 2, 3])
         <2 2 2 3>
         >>> x = Bjorklund([3, 2, 3], 1)
@@ -111,8 +87,6 @@ class Bjorklund:
         <3 2 3> (offset: 1)
         >>> print(x.steps)
         [0, 1, 0, 0, 1, 0, 1, 0]
-
-
         """
         self.__durations = []
         self.__steps = []
@@ -121,89 +95,13 @@ class Bjorklund:
         self.durations = durations
         self.offset = offset
 
-    def rotate_steps(self, n):
-        """
-        Rotate rhythm stepwise.
-
-        Parameters
-        ----------
-        n : int
-            Number of rotations. Rotate right if n is negative. It is the same
-            as the `rotate` method of `collections.deque`
-
-        Examples
-        --------
-        >>> x = Bjorklund([3, 2, 3], 1)
-        >>> print(x)
-        <3 2 3> (offset: 1)
-        >>> print(x.steps)
-        [0, 1, 0, 0, 1, 0, 1, 0]
-        >>> x.rotate_steps(-1)
-        >>> print(x.steps)
-        [1, 0, 0, 1, 0, 1, 0, 0]
-        >>> print(x)
-        <3 2 3>
-        >>> x.rotate_steps(3)
-        >>> print(x.steps)
-        [1, 0, 0, 1, 0, 0, 1, 0]
-        >>> print(x)
-        <3 3 2>
-        """
-        steps = deque(self.steps)
-        steps.rotate(n)
-        self.steps = list(steps)
-
-    def rotate_durations(self, n):
-        """
-        Rotate rhythm by durations. This does not effect the `offset` of the rhythm.
-
-        Parameters
-        ----------
-        n : int
-            Number of rotations. Rotate right if n is negative. It is the same
-            as the `rotate` method of `collections.deque`
-
-        Examples
-        --------
-        >>> x = Bjorklund([3, 2, 3], 1)
-        >>> print(x)
-        <3 2 3> (offset: 1)
-        >>> print(x.steps)
-        [0, 1, 0, 0, 1, 0, 1, 0]
-        >>> x.rotate_durations(-1)
-        >>> print(x.steps)
-        [0, 1, 0, 1, 0, 0, 1, 0]
-        >>> print(x)
-        <2 3 3> (offset: 1)
-        >>> x.rotate_durations(2)
-        >>> print(x.steps)
-        [0, 1, 0, 0, 1, 0, 0, 1]
-        >>> print(x)
-        <3 3 2> (offset: 1)
-        >>> y = Bjorklund([3, 2, 5, 4])
-        >>> print(y)
-        <3 2 5 4>
-        >>> y.rotate_durations(1)
-        >>> print(y)
-        <4 3 2 5>
-        """
-        durations = deque(self.durations)
-        durations.rotate(n)
-        offset = self.offset
-        self.durations = list(durations)
-        self.offset = offset
-
     @property
     def durations(self):
         """
         List of durations
 
-        Returns
-        -------
-        durations : list
+        :return: list of durations
 
-        Examples
-        --------
         >>> x = Bjorklund.from_n_steps_n_beats(9, 4)
         >>> print(x.durations)
         [3, 2, 2, 2]
@@ -221,12 +119,8 @@ class Bjorklund:
         """
         Offset of the first beat from the beginning.
 
-        Returns
-        -------
-        offset : int
+        :return: Offset
 
-        Examples
-        --------
         >>> x = Bjorklund.from_steps([0, 0, 1, 0, 1, 1])
         >>> print(x.offset)
         2
@@ -255,12 +149,8 @@ class Bjorklund:
         """
         List of steps
 
-        Returns
-        -------
-        steps : list
+        :return: list of steps
 
-        Examples
-        --------
         >>> x = Bjorklund.from_n_steps_n_beats(9, 4)
         >>> print(x.steps)
         [1, 0, 0, 1, 0, 1, 0, 1, 0]
@@ -278,12 +168,8 @@ class Bjorklund:
         """
         List of beat indices
 
-        Returns
-        -------
-        indices : list
+        :return: list of indices
 
-        Examples
-        --------
         >>> x = Bjorklund.from_n_steps_n_beats(9, 4)
         >>> print(x.indices)
         [0, 3, 5, 7]
@@ -301,12 +187,8 @@ class Bjorklund:
         """
         Number of steps.
 
-        Returns
-        -------
-        n_steps : int
+        :return: number of steps
 
-        Examples
-        --------
         >>> x = Bjorklund([3, 2, 2])
         >>> print(x.n_steps)
         7
@@ -318,17 +200,75 @@ class Bjorklund:
         """
         Number of beats.
 
-        Returns
-        -------
-        n_beats : int
+        :return: number of beats
 
-        Examples
-        --------
         >>> x = Bjorklund([3, 2, 2])
         >>> print(x.n_beats)
         3
         """
         return len(self.durations)
+
+    def rotate_steps(self, n):
+        """
+        Rotate rhythm stepwise.
+
+        :param n: Number of rotations. Rotate right if n is negative.
+        It is the same as the `rotate` method of `collections.deque`
+
+        >>> x = Bjorklund([3, 2, 3], 1)
+        >>> print(x)
+        <3 2 3> (offset: 1)
+        >>> print(x.steps)
+        [0, 1, 0, 0, 1, 0, 1, 0]
+        >>> x.rotate_steps(-1)
+        >>> print(x.steps)
+        [1, 0, 0, 1, 0, 1, 0, 0]
+        >>> print(x)
+        <3 2 3>
+        >>> x.rotate_steps(3)
+        >>> print(x.steps)
+        [1, 0, 0, 1, 0, 0, 1, 0]
+        >>> print(x)
+        <3 3 2>
+        """
+        steps = deque(self.steps)
+        steps.rotate(n)
+        self.steps = list(steps)
+
+    def rotate_durations(self, n):
+        """
+        Rotate rhythm by durations. This does not effect the `offset` of the rhythm.
+
+        :param n: Number of rotations. Rotate right if n is negative.
+        It is the same as the `rotate` method of `collections.deque`
+
+        >>> x = Bjorklund([3, 2, 3], 1)
+        >>> print(x)
+        <3 2 3> (offset: 1)
+        >>> print(x.steps)
+        [0, 1, 0, 0, 1, 0, 1, 0]
+        >>> x.rotate_durations(-1)
+        >>> print(x.steps)
+        [0, 1, 0, 1, 0, 0, 1, 0]
+        >>> print(x)
+        <2 3 3> (offset: 1)
+        >>> x.rotate_durations(2)
+        >>> print(x.steps)
+        [0, 1, 0, 0, 1, 0, 0, 1]
+        >>> print(x)
+        <3 3 2> (offset: 1)
+        >>> y = Bjorklund([3, 2, 5, 4])
+        >>> print(y)
+        <3 2 5 4>
+        >>> y.rotate_durations(1)
+        >>> print(y)
+        <4 3 2 5>
+        """
+        durations = deque(self.durations)
+        durations.rotate(n)
+        offset = self.offset
+        self.durations = list(durations)
+        self.offset = offset
 
     def __delta(self, j, i):
         """
@@ -444,6 +384,7 @@ class Bjorklund:
         return self.n_steps
 
     def __add__(self, other):
+        # TODO: Maybe don't
         multiple = lcm(self.n_beats, other.n_steps)
         a = multiple // self.n_beats
         b = multiple // other.n_steps
@@ -472,7 +413,16 @@ class Bjorklund:
         return f"{dur_reps} (offset: {self.offset})"
 
 
-def steps_to_durations(steps):
+def steps_to_durations(steps: List[int]) -> List[int]:
+    """
+    Convert `steps` representation of a Bjorklund into `durations` representation
+
+    >>> steps_to_durations([1, 0, 1, 0])
+    [2, 2]
+
+    :param steps: list of steps. 1 where there is a beat 0 where there is silence
+    :return: list of durations.
+    """
     @reduce_with(init=[])
     def s_to_d(x, y):
         if y == 0:
@@ -488,18 +438,46 @@ def steps_to_durations(steps):
     return s_to_d(steps[index:] + steps[:index])
 
 
-def durations_to_steps(durations):
+def durations_to_steps(durations: List[int]) -> List[int]:
+    """
+    Convert `durations` representation of a Bjorklund into `steps` representation
+
+    >>> durations_to_steps([3, 2, 1])
+    [1, 0, 0, 1, 0, 1]
+
+    :param durations: list of durations
+    :return: list of steps. 1 where there is a beat 0 where there is silence
+    """
     if any([x <= 0 for x in durations]):
         raise ValueError("Negative or zero length durations do not make sense in this context!")
 
     return sum([[1] + [0] * (x - 1) for x in durations], [])
 
 
-def steps_to_indices(steps):
+def steps_to_indices(steps: List[int]) -> List[int]:
+    """
+    Convert `steps` representation of a Bjorklund into `indices` representation
+
+    >>> steps_to_indices([0, 1, 1, 0, 0, 1])
+    [1, 2, 5]
+
+    :param steps: list of steps. 1 where there is a beat 0 where there is silence
+    :return: list of indices of beats (indices of 1s in steps).
+    """
     return [index for index, value in enumerate(steps) if value == 1]
 
 
-def indices_and_n_steps_to_steps(indices, n_steps):
+def indices_and_n_steps_to_steps(indices: List[int], n_steps: int) -> List[int]:
+    """
+    Convert `indices` representation of a Bjorklund into `steps` representation
+
+    >>> indices_and_n_steps_to_steps([0, 2, 3], 8)
+    [1, 0, 1, 1, 0, 0, 0, 0]
+
+    :param indices: list of indices of beats (indices of 1s in steps).
+    :param n_steps: number of steps
+    :return: list of steps. 1 where there is a beat 0 where there is silence
+    """
     steps = [0] * n_steps
     for index in indices:
         steps[index] = 1
