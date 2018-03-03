@@ -4,6 +4,7 @@ from collections import deque
 from pytom.libs.utils import reduce_with, lcm
 
 
+# TODO: All expected eceptions must print a message
 class Bjorklund:
     """
     Bjorklund(durations, offset=0)
@@ -55,7 +56,7 @@ class Bjorklund:
         return instance
 
     @classmethod
-    def from_indices_and_n_steps(cls, indices: List[int], n_steps: int):
+    def from_indices_and_n_steps(cls, indices: List[int], n_steps: int=0):
         """
         Create a Bjorklund rhythm object from indices and number of steps.
 
@@ -401,10 +402,15 @@ def steps_to_durations(steps: List[int]) -> List[int]:
             return x[:-1] + [x[-1] + 1]
         if y == 1:
             return x + [y]
+        if not x and not y:
+            return []
         raise ValueError("Steps can contain only beats (1) or rests (0)!")
 
     if not steps:
         return []
+
+    if 1 not in steps:
+        raise ValueError("Steps must contain at leat one beat!")
 
     index = steps.index(1)
     return s_to_d(steps[index:] + steps[:index])
@@ -477,8 +483,10 @@ def bjorklund(n_steps: int, n_beats: int) -> Bjorklund:
     >>> bjorklund(12, 5)
     <3 2 2 3 2>
     """
-    if n_beats <= 0 or n_steps <= 0 or n_beats > n_steps:
+    if n_beats <= 0 or n_steps <= 0:
         raise ValueError("Negative or zero number of steps or beats do not make sense!")
+    if n_beats > n_steps:
+        raise ValueError("Number of beats cannot be more than the number of steps!")
 
     quotient, remainder = divmod(n_steps, n_beats)
     if remainder == 0:
