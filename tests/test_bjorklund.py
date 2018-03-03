@@ -102,3 +102,11 @@ class BjorklundTest(unittest.TestCase):
             self.assertRaises(ValueError, Bjorklund.from_indices_and_n_steps, indices, n_steps)
         else:
             self.assertIsInstance(Bjorklund.from_indices_and_n_steps(indices, n_steps), Bjorklund)
+
+    @given(st.lists(st.integers(min_value=1, max_value=128), max_size=128), st.integers(min_value=0, max_value=128))
+    def test___init__(self, durations, offset_):
+        assume(durations)
+        offset = min(offset_, durations[-1] - 1)
+        b1 = Bjorklund(durations, offset)
+
+        self.assertEqual(b1, Bjorklund.from_steps(b1.steps))

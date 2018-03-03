@@ -134,7 +134,8 @@ class Bjorklund:
     def offset(self, offset):
         if not self.steps:
             return
-        max_offset = self.steps[::-1].index(1)
+        max_offset = self.durations[-1] - 1
+        # TODO: maybe raise exception
         if offset > max_offset:
             print(f"Not enough empty steps at the end! Setting offset to {max_offset} instead.")
             offset = max_offset
