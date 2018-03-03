@@ -33,3 +33,7 @@ def foldr(func, xs, init=None):
 
 def lcm(a, b):
     return (a * b) // gcd(a, b)
+
+
+def is_sorted(xs):
+    return all(xs[i] <= xs[i + 1] for i in range(len(xs) - 1))

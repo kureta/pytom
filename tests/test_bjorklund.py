@@ -72,7 +72,7 @@ class BjorklundTest(unittest.TestCase):
     def test_from_steps_exceptions(self, steps):
         if not steps:
             self.assertEqual(Bjorklund.from_steps(steps), Bjorklund([]))
-        elif not all([s == 0 or s == 1 for s in steps]):
+        elif not all(s == 0 or s == 1 for s in steps):
             self.assertRaises(ValueError, Bjorklund.from_steps, steps)
         elif 1 not in steps:
             self.assertRaises(ValueError, Bjorklund.from_steps, steps)
@@ -88,21 +88,17 @@ class BjorklundTest(unittest.TestCase):
 
         self.assertEqual(b1, Bjorklund(b1.durations, b1.offset))
 
-    # @given(st.lists(st.integers(min_value=-256, max_value=256), max_size=256),
-    #        st.integers(min_value=-256, max_value=256))
-    # def test_from_indices_and_n_steps_exceptions(self, indices, n_steps):
-    #     if not indices:
-    #         if n_steps == 0:
-    #             self.assertEqual(Bjorklund.from_indices_and_n_steps(indices, n_steps), Bjorklund([]))
-    #         else:
-    #             self.assertRaises(ValueError, Bjorklund.from_indices_and_n_steps, indices, n_steps)
-    #     elif indices != sorted(indices):
-    #         self.assertRaises(ValueError, Bjorklund.from_indices_and_n_steps, indices, n_steps)
-    #     elif n_steps <= max(indices):
-    #         self.assertRaises(ValueError, Bjorklund.from_indices_and_n_steps, indices, n_steps)
-    #     elif n_steps <= len(indices):
-    #         self.assertRaises(ValueError, Bjorklund.from_indices_and_n_steps, indices, n_steps)
-    #     elif n_steps < 0:
-    #         self.assertRaises(IndexError, Bjorklund.from_indices_and_n_steps, indices, n_steps)
-    #     else:
-    #         self.assertIsInstance(Bjorklund.from_indices_and_n_steps(indices, n_steps), Bjorklund)
+    @given(st.lists(st.integers(min_value=-256, max_value=256), max_size=256),
+           st.integers(min_value=-256, max_value=256))
+    def test_from_indices_and_n_steps_exceptions(self, indices, n_steps):
+        if not indices:
+            if n_steps == 0:
+                self.assertEqual(Bjorklund.from_indices_and_n_steps(indices, n_steps), Bjorklund([]))
+            else:
+                self.assertRaises(ValueError, Bjorklund.from_indices_and_n_steps, indices, n_steps)
+        elif n_steps < max([max(indices) + 1, len(indices)]):
+            self.assertRaises(ValueError, Bjorklund.from_indices_and_n_steps, indices, n_steps)
+        elif any(x < 0 for x in indices):
+            self.assertRaises(ValueError, Bjorklund.from_indices_and_n_steps, indices, n_steps)
+        else:
+            self.assertIsInstance(Bjorklund.from_indices_and_n_steps(indices, n_steps), Bjorklund)

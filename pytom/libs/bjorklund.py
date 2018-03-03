@@ -1,7 +1,7 @@
-from typing import List
 from collections import deque
+from typing import List
 
-from pytom.libs.utils import reduce_with, lcm
+from pytom.libs.utils import reduce_with, lcm, is_sorted
 
 
 # TODO: All expected eceptions must print a message
@@ -25,6 +25,7 @@ class Bjorklund:
     >>> Bjorklund.from_indices_and_n_steps(indices=[0, 3, 5], n_steps=8)
     <3 2 3>
     """
+
     @classmethod
     def from_n_steps_n_beats(cls, n_steps: int, n_beats: int):
         """
@@ -56,7 +57,7 @@ class Bjorklund:
         return instance
 
     @classmethod
-    def from_indices_and_n_steps(cls, indices: List[int], n_steps: int=0):
+    def from_indices_and_n_steps(cls, indices: List[int], n_steps: int = 0):
         """
         Create a Bjorklund rhythm object from indices and number of steps.
 
@@ -71,7 +72,7 @@ class Bjorklund:
         instance.steps = indices_and_n_steps_to_steps(indices, n_steps)
         return instance
 
-    def __init__(self, durations: List[int], offset: int=0):
+    def __init__(self, durations: List[int], offset: int = 0):
         """
         Default initialization method for the Bjorklund object.
 
@@ -367,7 +368,7 @@ class Bjorklund:
         my_durations = deque(self.durations)
         other_durations = deque(other.durations)
 
-        for i in range(self.n_beats+1):
+        for i in range(self.n_beats + 1):
             if other_durations == my_durations:
                 return True
             my_durations.rotate()
@@ -396,6 +397,7 @@ def steps_to_durations(steps: List[int]) -> List[int]:
     >>> steps_to_durations([1, 0, 1, 0])
     [2, 2]
     """
+
     @reduce_with(init=[])
     def s_to_d(x, y):
         if y == 0:
@@ -426,7 +428,7 @@ def durations_to_steps(durations: List[int]) -> List[int]:
     >>> durations_to_steps([3, 2, 1])
     [1, 0, 0, 1, 0, 1]
     """
-    if any([x <= 0 for x in durations]):
+    if any(x <= 0 for x in durations):
         raise ValueError("Negative or zero length durations do not make sense in this context!")
 
     return sum([[1] + [0] * (x - 1) for x in durations], [])
@@ -456,6 +458,18 @@ def indices_and_n_steps_to_steps(indices: List[int], n_steps: int) -> List[int]:
     >>> indices_and_n_steps_to_steps([0, 2, 3], 8)
     [1, 0, 1, 1, 0, 0, 0, 0]
     """
+    if not indices and n_steps == 0:
+        return []
+
+    if any(x < 0 for x in indices):
+        raise ValueError("Indices of beats cannot be negative!")
+
+    if n_steps < max([max(indices) + 1, len(indices)]):
+        raise ValueError("These indices cannot fit into thi snumber of steps!")
+
+    if not is_sorted(indices):
+        indices.sort()
+
     steps = [0] * n_steps
     for index in indices:
         steps[index] = 1
