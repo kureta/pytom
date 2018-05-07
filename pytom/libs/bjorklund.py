@@ -1,7 +1,7 @@
 from collections import deque
 from typing import List
 
-from pytom.libs.utils import reduce_with, lcm, is_sorted
+from pytom.libs.utils import reduce_with, lcm
 
 
 # TODO: All expected eceptions must print a message
@@ -430,7 +430,7 @@ def durations_to_steps(durations: List[int]) -> List[int]:
     [1, 0, 0, 1, 0, 1]
     """
     if any(x <= 0 for x in durations):
-        raise ValueError("Negative or zero length durations do not make sense in this context!")
+        raise ValueError("Negative or zero length durations do not make sense!")
 
     return sum([[1] + [0] * (x - 1) for x in durations], [])
 
@@ -459,8 +459,11 @@ def indices_and_n_steps_to_steps(indices: List[int], n_steps: int) -> List[int]:
     >>> indices_and_n_steps_to_steps([0, 2, 3], 8)
     [1, 0, 1, 1, 0, 0, 0, 0]
     """
-    if not indices and n_steps == 0:
-        return []
+    if not indices:
+        if n_steps == 0:
+            return []
+        else:
+            raise ValueError("Indices list empty! There must be at least one beat.")
 
     if any(x < 0 for x in indices):
         raise ValueError("Indices of beats cannot be negative!")
@@ -468,8 +471,8 @@ def indices_and_n_steps_to_steps(indices: List[int], n_steps: int) -> List[int]:
     if n_steps < max([max(indices) + 1, len(indices)]):
         raise ValueError("These indices cannot fit into thi snumber of steps!")
 
-    if not is_sorted(indices):
-        indices.sort()
+    # TODO: Maybe raise an exception
+    indices = sorted(list(set(indices)))
 
     steps = [0] * n_steps
     for index in indices:
