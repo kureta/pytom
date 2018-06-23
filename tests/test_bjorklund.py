@@ -1,7 +1,7 @@
 import unittest
 
 import hypothesis.strategies as st
-from hypothesis import given, assume, reproduce_failure
+from hypothesis import given, assume
 
 from pytom.libs.bjorklund import Bjorklund
 
@@ -85,7 +85,6 @@ class BjorklundTest(unittest.TestCase):
 
     @given(st.lists(st.integers(min_value=-256, max_value=256), max_size=256),
            st.integers(min_value=-256, max_value=256))
-    @reproduce_failure('3.47.0', b'AAEAAAABAAAAAAAAAg==')
     def test_from_indices_and_n_steps_exceptions(self, indices, n_steps):
         indices = sorted(list(set(indices)))
         if not indices:
@@ -100,19 +99,22 @@ class BjorklundTest(unittest.TestCase):
         else:
             b1 = Bjorklund.from_indices_and_n_steps(indices, n_steps)
             self.assertEqual((b1.indices, b1.n_steps), (indices, n_steps))
-    #
-    # @given(st.lists(st.integers(min_value=1, max_value=128), max_size=128), st.integers(min_value=0, max_value=128))
-    # def test___init__(self, durations, offset_):
-    #     assume(durations)
-    #     offset = min(offset_, durations[-1] - 1)
-    #
-    #     self.assertIsInstance(Bjorklund(durations, offset), Bjorklund)
 
-    # @given(st.lists(st.integers(min_value=-128, max_value=128), max_size=128), st.integers(min_value=-128, max_value=128))
-    # def test___init__exceptions(self, durations, offset):
-    #     if any(x <= 0 for x in durations):
-    #         self.assertRaises(ValueError, Bjorklund, durations, offset)
-    #     else:
-    #         b1 = Bjorklund(durations, offset)
-    #         self.assertIsInstance(b1, Bjorklund)
-    #         self.assertEqual((b1.durations, b1.offset) == (durations, offset))
+    @given(st.lists(st.integers(min_value=1, max_value=128), max_size=128), st.integers(min_value=0, max_value=128))
+    def test___init__(self, durations, offset_):
+        assume(durations)
+        offset = min(offset_, durations[-1] - 1)
+
+        self.assertIsInstance(Bjorklund(durations, offset), Bjorklund)
+
+    @given(st.lists(st.integers(min_value=-128, max_value=128), max_size=128),
+           st.integers(min_value=0, max_value=0))
+    def test___init__exceptions(self, durations, offset):
+        if any(x <= 0 for x in durations):
+            self.assertRaises(ValueError, Bjorklund, durations, offset)
+        else:
+            b1 = Bjorklund(durations, offset)
+            result_offset = 0 if durations == [] else offset % sum(durations)
+            self.assertIsInstance(b1, Bjorklund)
+            self.assertEqual(b1.durations, durations)
+            self.assertEqual(b1.offset, result_offset)

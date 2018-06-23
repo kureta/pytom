@@ -4,7 +4,10 @@ from typing import List
 from pytom.libs.utils import reduce_with, lcm
 
 
-# TODO: All expected eceptions must print a message
+# TODO: offset does not work. Bjorklund should be immutable, maybe.
+# TODO: All expected exceptions must print a message
+# TODO: a rhthym is a Bjorklund with a rotation and an offset. Rhthyms are composable
+# offset and rotation overlap
 class Bjorklund:
     """
     Bjorklund(durations, offset=0)
@@ -372,7 +375,7 @@ class Bjorklund:
         for i in range(self.n_beats + 1):
             if other_durations == my_durations:
                 return True
-            my_durations.rotate()
+            my_durations.rotate(1)
         return False
 
     def __repr__(self):
